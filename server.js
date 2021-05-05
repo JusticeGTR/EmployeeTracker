@@ -5,13 +5,10 @@ const cTable = require('console.table');
 const connection = mysql.createConnection({
     host: 'localhost',
   
-    // Your port; if not 3306
     port: 3306,
   
-    // Your username
     user: 'root',
   
-    // Be sure to update with your own MySQL password!
     password: 'Forgreatjustice2',
     database: 'contentManagementSystem_db',
   });
@@ -30,43 +27,42 @@ const connection = mysql.createConnection({
 ],
       })
       console.log(answer)
-      switch(answer) {
+      switch(answer.initialChoice) {
         case "Add departments":
-          addDepartments();
+          addDepartment();
           break;
         case "Add Roles":
-          addRoles();
+          addRole();
           break;
         case "Add employees":
-          addEmployees();
+          addEmployee();
           break;
         case "View departments":
-          viewDepartments();
+          viewDepartment();
           break;
         case "View Roles":
           viewRoles();
           break;
         case "View employees":
-          viewEmployees();
+          viewEmployee();
           break;
         case "View employees by manager":
           employeesByManager();
           break;
         case "Update employee managers":
-          updateManagers();
+          updateManager();
           break;
         case "Deplete departments":
-          depleteDepartments();
+          depleteDepartment();
           break;
         case "Delete roles":
-          deleteRoles();
+          deleteRole();
           break;
         case "Delete Employees":
-          deleteEmployees();
+          deleteEmployee();
           break;
         case "Exit":
           console.log("Have a nice day!");
-          break;
       }
     //   .then((answer) => {
 
@@ -75,9 +71,31 @@ const connection = mysql.createConnection({
     //   });
   };
 
+  const addDepartment = async () => {
+    const answer = await inquirer
+      .prompt([
+        {
+          name: 'department',
+          type: 'input',
+          message: 'What department would you like to add?',
+        },
+      ])
+        connection.query(
+          'INSERT INTO department SET ?',
+          {
+            name: answer.department,
+          },
+          (err) => {
+            if (err) throw err;
+            console.log('Your department was added successfully!');
+            console.log()
+            start();
+          }
+        );
+  };
+
   connection.connect((err) => {
     if (err) throw err;
-    // run the start function after the connection is made to prompt the user
     start();
   });
   
