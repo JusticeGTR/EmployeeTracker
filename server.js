@@ -2,15 +2,14 @@ const inquirer = require('inquirer');
 const mysql = require('mysql');
 const cTable = require('console.table');
 
-const connection = mysql.createConnection({
+const connection = mysql.createConnection(
+  
+  process.env.DB_NAME,
+  process.env.DB_USER,
+  process.env.DB_PASSWORD,
+  {
     host: 'localhost',
-  
     port: 3306,
-  
-    user: 'root',
-  
-    password: 'Forgreatjustice2',
-    database: 'contentManagementSystem_db',
   });
 
   const start = async () => {
@@ -82,6 +81,45 @@ const connection = mysql.createConnection({
       ])
         connection.query(
           'INSERT INTO department SET ?',
+          {
+            name: answer.department,
+          },
+          (err) => {
+            if (err) throw err;
+            console.log('Your department was added successfully!');
+            console.log()
+            start();
+          }
+        );
+  };
+
+  const addRole = async () => {
+    //gather all the departments as an array to pass into the roleDepartment prompt
+    connection.query('SELECT * FROM department', (err, res) => {
+      // const departmentChoices = res.something is all the departments
+      const answer = await inquirer
+        .prompt([
+          {
+            name: 'role',
+            type: 'input',
+            message: 'What is the title of the role that you would like to add?',
+          },
+          {
+            name: 'salary',
+            type: 'input',
+            message: 'What is the salary of this role?'
+          }
+          {
+            name: 'roleDepartment',
+            type: 'list',
+            message: 'Which department does this belong in?',
+            choices: departmentChoices
+          }
+        ])
+
+    })
+        connection.query(
+          'INSERT INTO role SET ?',
           {
             name: answer.department,
           },
