@@ -4,16 +4,6 @@ const cTable = require('console.table');
 //require('dotenv').config();
 console.log(require('dotenv').config());
 
-// const connection = mysql.createConnection(
-//   process.env.DB_NAME,
-//   process.env.DB_USER,
-//   process.env.DB_PASSWORD,
-//   {
-//     host: 'localhost',
-//     dialect: 'mysql',
-//     port: 3306,
-//   });
-
 const connection = mysql.createConnection({
   host: 'localhost',
   // Your port; if not 3306
@@ -75,6 +65,7 @@ const start = async () => {
       break;
     case "Exit":
       console.log("Have a nice day!");
+      connection.end();
   }
   //   .then((answer) => {
 
@@ -109,10 +100,11 @@ const addDepartment = async () => {
 const addRole = () => {
   //gather all the departments as an array to pass into the roleDepartment prompt
   connection.query('SELECT * FROM department', async (err, res) => {
+    if (err) throw err;
     const departmentChoices = res.map(dept => {
-      return {name: dept.name, value: dept.id}
+      return { name: dept.name, value: dept.id }
     });
-    
+
     const answer = await inquirer
       .prompt([
         {
@@ -143,41 +135,66 @@ const addRole = () => {
       (err) => {
         if (err) throw err;
         console.log('Your department was added successfully!');
-        console.log()
         start();
       }
     );
   })
 };
 
-const addEmployee = async () => {
-  const answer = await inquirer
-    .prompt([
-      {
-        name: 'firstName',
-        type: 'input',
-        message: 'What is the new employee\'s first name?',
-      },
-      {
-        name: 'lastName',
-        type: 'input',
-        message: 'What is the new employee\'s last name?',
-      },
-      
-    ])
-  connection.query(
-    'INSERT INTO department SET ?',
-    {
-      name: answer.department,
-    },
-    (err) => {
+const addEmployee = () => {
+  connection.query('SELECT * FROM role', async (err, res) => {
+    if (err) throw err;
+    const roleList = res.map(role => {
+      return { name: role.name, value: role.id }
+    });
+    const managerList = {};
+    connection.query('SELECT * FROM employee', (err, res) => {
       if (err) throw err;
-      console.log('Your department was added successfully!');
-      console.log()
-      start();
-    }
-  );
-};
+      managerList = res.map(manager => {
+        return {name: `${manager.first_name} ${manager.last_name}`, value: manager.id}
+      });
+    });
+    const answer = await inquirer
+      .prompt([
+        {
+          name: 'firstName',
+          type: 'input',
+          message: 'What is the new employee\'s first name?',
+        },
+        {
+          name: 'lastName',
+          type: 'input',
+          message: 'What is the new employee\'s last name?',
+        },
+        {
+          name: 'employeeRole',
+          type: 'list',
+          message: 'What is the new employee\'s role?',
+          choices: roleList,
+        },
+        {
+          name: 'employeeManager',
+          type: 'list',
+          message: 'Who is the new employee\'s manager?',
+          choices: managerList,
+        },
+      ])
+
+    connection.query(
+      'INSERT INTO employee SET ?', {
+      firt_name: answer.firstName,
+      last_name: answer.lastName,
+      role_id: answer.employeeRole,
+      manager_id: answer.employeeManager,
+      },
+      (err) => {
+        if (err) throw err;
+        console.log(`${employee.firstName} ${employee.lastName} was added successfully!`);
+        start();
+      }
+    );
+  })
+}
 
 
 
