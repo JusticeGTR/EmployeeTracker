@@ -151,7 +151,7 @@ const addEmployee = () => {
     connection.query('SELECT * FROM employee', (err, res) => {
       if (err) throw err;
       managerList = res.map(manager => {
-        return {name: `${manager.first_name} ${manager.last_name}`, value: manager.id}
+        return { name: `${manager.first_name} ${manager.last_name}`, value: manager.id }
       });
     });
     const answer = await inquirer
@@ -186,7 +186,7 @@ const addEmployee = () => {
       last_name: answer.lastName,
       role_id: answer.employeeRole,
       manager_id: answer.employeeManager,
-      },
+    },
       (err) => {
         if (err) throw err;
         console.log(`${employee.firstName} ${employee.lastName} was added successfully!`);
@@ -196,8 +196,107 @@ const addEmployee = () => {
   })
 }
 
+const updateManager = () => {
+  //gather all the departments as an array to pass into the roleDepartment prompt
+  connection.query('SELECT * FROM role', async (err, res) => {
+    if (err) throw err;
+    const managerList = res.map(manager => {
+      return { name: manager.title, value: manager.id }
+    });
+    connection.query('SELECT name * employee', (err, res) => {
+      if (err) throw err;
+      employeeList = res.map(employee => {
+        return { name: `${employee.first_name} ${employee.last_name}`, value: employee.id }
+      });
+    })
+
+    const answer = await inquirer
+      .prompt([
+        {
+          name: 'oldRole',
+          type: 'list',
+          message: 'Who\'s role would you like to change?',
+          choices: employeeList,
+        },
+        {
+          name: 'newManager',
+          type: 'list',
+          message: 'Who is their new manager?',
+          choices: managerList
+        },
+      ])
+
+    connection.query(
+      'UPDATE employee SET ?',
+      {
+        manager_id: answer.newManager,
+      },
+      (err) => {
+        if (err) throw err;
+        console.log(`${employee.first_name} ${employee.last_name}'s manager was updated successfully!`);
+        start();
+      }
+    );
+  })
+};
+
+const viewDepartment = async () => {
+  connection.query('SELECT * FROM department', (err, res) => {
+    if (err) throw err;
+    const deptList = res;
+    const answer = await inquirer
+      .prompt({
+        name: 'departments',
+        type: 'list',
+        message: 'Which department would you like to view?',
+        chocies: deptList
+      });
+    () => {
+      console.log(answer)
+      start();
+    }
+  })
+}
+
+const viewRoles = async () => {
+  connection.query('SELECT * FROM role', (err, res) => {
+    if (err) throw err;
+    const roleList = res.map(role => {
+      return { name: role.title, value: role.id }
+    })
+    const answer = await inquirer
+      .prompt({
+        name: 'roles',
+        type: 'list',
+        message: 'Which role would you like to view?',
+        choices: roleList,
+      })
+    connection.query('SELECT role_id FROM employee', (err, res) => {
+      if (err) throw err;
+      if (employee.role_id === answer.role_id) {
+        console.log(res)
+      } else {
+        console.log('No employees in that role.')
+      }
+      (err) => {
+        if (err) throw err;
+        start();
+      }
+    })
+  })
+}
 
 
+const viewEmployee = async () => {
+  const employee = 'SELECT * FROM employee'
+  const role = 'SELECT * FROM role'
+  const fullEmployee =  employee += role += 'INNER JOIN employee' += 'ON role.id=employee.role_id';
+  await connection.query(fullEmployee, (err, res) => {
+    if (err) throw err;
+    console.log(res);
+    start();
+  })
+}
 
 connection.connect((err) => {
   if (err) throw err;
