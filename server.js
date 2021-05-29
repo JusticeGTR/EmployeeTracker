@@ -67,11 +67,6 @@ const start = async () => {
       console.log("Have a nice day!");
       connection.end();
   }
-  //   .then((answer) => {
-
-
-  //     }
-  //   });
 };
 
 const addDepartment = async () => {
@@ -244,6 +239,9 @@ const viewDepartment = async () => {
   connection.query('SELECT * FROM department', (err, res) => {
     if (err) throw err;
     const deptList = res;
+    return deptList
+  })
+
     const answer = await inquirer
       .prompt({
         name: 'departments',
@@ -255,7 +253,6 @@ const viewDepartment = async () => {
       console.log(answer)
       start();
     }
-  })
 }
 
 const viewRoles = async () => {
@@ -264,6 +261,8 @@ const viewRoles = async () => {
     const roleList = res.map(role => {
       return { name: role.title, value: role.id }
     })
+    return roleList;
+  })
     const answer = await inquirer
       .prompt({
         name: 'roles',
@@ -283,14 +282,14 @@ const viewRoles = async () => {
         start();
       }
     })
-  })
 }
 
 
 const viewEmployee = async () => {
   const employee = 'SELECT * FROM employee'
   const role = 'SELECT * FROM role'
-  const fullEmployee =  employee += role += 'INNER JOIN employee' += 'ON role.id=employee.role_id';
+  const innerJoin = 'INNER JOIN employee'
+  const fullEmployee =  employee += role += innerJoin += 'ON role.id=employee.role_id';
   await connection.query(fullEmployee, (err, res) => {
     if (err) throw err;
     console.log(res);
@@ -302,12 +301,3 @@ connection.connect((err) => {
   if (err) throw err;
   start();
 });
-
-
-
-
-
-
-
-// you’ll have to query the departments first with something like SELECT * FROM departments; One of those columns will be the ID and you’ll have to show the Department Name instead. You have to display Engineering
-// But then translate to whatever ID it is
