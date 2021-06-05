@@ -1,8 +1,7 @@
 const inquirer = require('inquirer');
 const mysql = require('mysql');
 const cTable = require('console.table');
-//require('dotenv').config();
-console.log(require('dotenv').config());
+require('dotenv').config();
 
 const connection = mysql.createConnection({
   host: 'localhost',
@@ -21,7 +20,7 @@ const start = async () => {
       name: 'initialChoice',
       type: 'list',
       message: 'What would you like to do?',
-      choices: ["Add Departments", "Add Roles", "Add Employees", "View Deparments", "View Roles", "View Employees", "View Employees By Manager", "Update Employee Managers", "Delete Departments", "Delete Roles", "Delete Employees", "Exit",
+      choices: ["Add Departments", "Add Roles", "Add Employees", "View Departments", "View Roles", "View Employees", "View Employees By Manager", "Update Employee Managers", "Delete Departments", "Delete Roles", "Delete Employees", "Exit",
         //   {
         //     name : "Justin Lindsey",
         //     value : 1 
@@ -30,34 +29,34 @@ const start = async () => {
     })
   console.log(answer)
   switch (answer.initialChoice) {
-    case "Add departments":
+    case "Add Departments":
       addDepartment();
       break;
     case "Add Roles":
       addRole();
       break;
-    case "Add employees":
+    case "Add Employees":
       addEmployee();
       break;
-    case "View departments":
+    case "View Departments":
       viewDepartment();
       break;
     case "View Roles":
       viewRoles();
       break;
-    case "View employees":
+    case "View Employees":
       viewEmployee();
       break;
-    case "View employees by manager":
+    case "View Employees By Manager":
       employeesByManager();
       break;
-    case "Update employee managers":
+    case "Update Employee Managers":
       updateManager();
       break;
-    case "Deplete departments":
+    case "Deplete Departments":
       depleteDepartment();
       break;
-    case "Delete roles":
+    case "Delete Roles":
       deleteRole();
       break;
     case "Delete Employees":
@@ -236,6 +235,7 @@ const updateManager = () => {
 };
 
 const viewDepartment = async () => {
+  console.log("reached view deparmtment!")
   connection.query('SELECT * FROM department', (err, res) => {
     if (err) throw err;
     const deptList = res;
@@ -250,7 +250,7 @@ const viewDepartment = async () => {
         chocies: deptList
       });
     () => {
-      console.log(answer)
+      console.table(answer)
       start();
     }
 }
@@ -273,7 +273,7 @@ const viewRoles = async () => {
     connection.query('SELECT role_id FROM employee', (err, res) => {
       if (err) throw err;
       if (employee.role_id === answer.role_id) {
-        console.log(res)
+        console.table(res)
       } else {
         console.log('No employees in that role.')
       }
@@ -292,7 +292,7 @@ const viewEmployee = async () => {
   const fullEmployee =  employee += role += innerJoin += 'ON role.id=employee.role_id';
   await connection.query(fullEmployee, (err, res) => {
     if (err) throw err;
-    console.log(res);
+    console.table(res);
     start();
   })
 }
