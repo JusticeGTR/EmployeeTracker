@@ -235,11 +235,11 @@ const updateManager = () => {
 };
 
 const viewDepartment = async () => {
-  console.log("reached view deparmtment!")
-  connection.query('SELECT * FROM department', (err, res) => {
+  connection.query('SELECT name FROM department', (err, res) => {
     if (err) throw err;
     const deptList = res;
-    return deptList
+    console.log(deptList)
+    return deptList;
   })
 
     const answer = await inquirer
@@ -256,7 +256,7 @@ const viewDepartment = async () => {
 }
 
 const viewRoles = async () => {
-  connection.query('SELECT * FROM role', (err, res) => {
+  connection.query('SELECT title, salary FROM role', (err, res) => {
     if (err) throw err;
     const roleList = res.map(role => {
       return { name: role.title, value: role.id }
@@ -286,10 +286,15 @@ const viewRoles = async () => {
 
 
 const viewEmployee = async () => {
-  const employee = 'SELECT * FROM employee'
-  const role = 'SELECT * FROM role'
-  const innerJoin = 'INNER JOIN employee'
-  const fullEmployee =  employee += role += innerJoin += 'ON role.id=employee.role_id';
+  const fullEmployee =  `SELECT e.id, CONCAT(e.first_name, " ", e.last_name) AS Employee, r.title, CONCAT(m.first_name," ", m.last_name) AS Manager
+  FROM employee e
+  JOIN role r
+  ON 
+  -- table1.column_name = table2.column_name;
+  e.role_id = r.id
+  JOIN employee m
+  ON e.manager_id = m.id;`
+  // fullEmployee = 'SELECT * FROM employeeSELECT * FROM roleINNER JOIN employee'
   await connection.query(fullEmployee, (err, res) => {
     if (err) throw err;
     console.table(res);
